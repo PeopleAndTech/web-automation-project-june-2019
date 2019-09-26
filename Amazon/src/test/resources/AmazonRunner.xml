@@ -12,7 +12,7 @@
 
     <test name="Automation tests">
         <classes>
-            <class name="SmokeTests"/>
+            <class name="homepagetests.SearchTests"/>
         </classes>
     </test>
 </suite>
