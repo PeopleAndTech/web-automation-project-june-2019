@@ -1,18 +1,24 @@
 package homepagetests;
 
-import homepage.Search;
+import SearchResult.ResultPage;
+import homepage.HomePage;
 import org.testng.annotations.Test;
 
-public class SearchTests extends Search {
+public class SearchTests extends HomePage {
 
-    @Test(enabled = false)
-    public void typeAbilityTestForSearchField() {
-        searchFieldIsTypeAble();
-    }
+    ResultPage resultPage = new ResultPage();
 
     @Test
     public void validateSearchButtonWorks() {
-        searchFieldIsTypeAble();
+        clickOnSearchBar();
+        typeOnSearchBar("Java Books");
         clickOnSearchButton();
+        sleepFor(2);
+        resultPage.validateSearchPageDisplayed();
+    }
+
+    //@Test
+    public void validateResultPage() {
+        //resultPage.whatever();
     }
 }

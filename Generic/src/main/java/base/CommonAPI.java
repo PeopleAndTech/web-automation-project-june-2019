@@ -7,6 +7,8 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
@@ -17,6 +19,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -27,13 +31,31 @@ public class CommonAPI {
 
     public static WebDriver driver;
     public static ExtentReports extent;
+    public static String sauceUserName = "";
+    public static String sauceKey = "";
+    public static String browserStackUserName = "";
+    public static String browserStackKey = "";
+    //http:// + username + : + key + specific url for cloud
+    public static String SAUCE_URL = "http://" + sauceUserName + ":" + sauceKey + "@ondemand.saucelabs.com:80/wd/hub";
+    public static String BROWERSTACK_URL = "http://" + browserStackUserName + ":" + browserStackKey + "@hub-cloud.browserstack.com:80/wd/hub";
 
+    /**
+     * @param platform       -
+     * @param url            -
+     * @param browser        -
+     * @param cloud          -
+     * @param browserVersion -
+     * @param envName        -
+     * @return
+     * @throws MalformedURLException
+     * @Parameters - values are coming from the runner.xml file of the project modules
+     */
     @Parameters({"platform", "url", "browser", "cloud", "browserVersion", "envName"})
     @BeforeMethod
     public static WebDriver setupDriver(String platform, String url, String browser,
-                                        boolean cloud, String browserVersion, String envName) {
+                                        boolean cloud, String browserVersion, String envName) throws MalformedURLException {
         if (cloud) {
-            driver = getCloudDriver();
+            driver = getCloudDriver(browser, browserVersion, platform, envName);
         } else {
             driver = getLocalDriver(browser, platform);
         }
@@ -41,6 +63,11 @@ public class CommonAPI {
         return driver;
     }
 
+    /**
+     * @param browser  the browser you want to execute your test case
+     * @param platform in the operating system you want to execute your test case
+     * @return WebDriver Object
+     */
     public static WebDriver getLocalDriver(String browser, String platform) {
         //chrome popup
         ChromeOptions chromeOptions = new ChromeOptions();
@@ -66,7 +93,22 @@ public class CommonAPI {
         return driver;
     }
 
-    public static WebDriver getCloudDriver() {
+    public static WebDriver getCloudDriver(String browser, String browserVersion, String platform,
+                                           String envName) throws MalformedURLException {
+        DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+        desiredCapabilities.setCapability("name", "Cloud Execution");
+        desiredCapabilities.setCapability("browserName", browser);
+        desiredCapabilities.setCapability("browser_version", browserVersion);
+        desiredCapabilities.setCapability("os", platform);
+        desiredCapabilities.setCapability("os_version", "Mojave");
+        desiredCapabilities.setCapability("resolution", "1600x1200");
+        if (envName.equalsIgnoreCase("saucelabs")) {
+            driver = new RemoteWebDriver(new URL(SAUCE_URL), desiredCapabilities);
+        } else if (envName.equalsIgnoreCase("browserstack")) {
+            // desiredCapabilities.setCapability("resolution", "1024x768");
+            driver = new RemoteWebDriver(new URL(BROWERSTACK_URL), desiredCapabilities);
+        }
+
         return driver;
     }
 
@@ -81,7 +123,6 @@ public class CommonAPI {
             System.out.println("Screenshot captured");
         } catch (Exception e) {
             System.out.println("Exception while taking screenshot " + e.getMessage());
-            ;
         }
     }
 
@@ -194,6 +235,10 @@ public class CommonAPI {
         return flag;
     }
 
+    /**
+     * @param locator - xpath that we are trying to make webElement of
+     * @return WebElement - WebElement of the xpath
+     */
     public WebElement getElement(String locator) {
         WebElement element = driver.findElement(By.xpath(locator));
         return element;
