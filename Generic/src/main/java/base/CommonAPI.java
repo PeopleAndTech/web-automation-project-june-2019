@@ -7,6 +7,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestContext;
@@ -105,7 +106,6 @@ public class CommonAPI {
         if (envName.equalsIgnoreCase("saucelabs")) {
             driver = new RemoteWebDriver(new URL(SAUCE_URL), desiredCapabilities);
         } else if (envName.equalsIgnoreCase("browserstack")) {
-            // desiredCapabilities.setCapability("resolution", "1024x768");
             driver = new RemoteWebDriver(new URL(BROWERSTACK_URL), desiredCapabilities);
         }
 
@@ -206,6 +206,9 @@ public class CommonAPI {
         driver.findElement(By.id(locator)).click();
     }
 
+    public void clickOnElementByLinkText(String locator) {
+        driver.findElement(By.linkText(locator)).click();
+    }
 
     public void typeOnElementByXpath(String locator, String value) {
         driver.findElement(By.xpath(locator)).sendKeys(value);
@@ -240,7 +243,23 @@ public class CommonAPI {
      * @return WebElement - WebElement of the xpath
      */
     public WebElement getElement(String locator) {
-        WebElement element = driver.findElement(By.xpath(locator));
-        return element;
+        return driver.findElement(By.xpath(locator));
+    }
+
+    public WebElement getElementByLinkText(String locator) {
+        return driver.findElement(By.linkText(locator));
+    }
+
+
+    public void dragNdropByXpaths(String fromLocator, String toLocator) {
+        Actions actions = new Actions(driver);
+        WebElement from = getElement(fromLocator);
+        WebElement to = getElement(toLocator);
+        actions.dragAndDrop(from, to).build().perform();
+    }
+
+    public void scrollIntoView(String locator) {
+        JavascriptExecutor javascriptExecutor = (JavascriptExecutor) driver;
+        javascriptExecutor.executeScript("arguments[0].scrollIntoView(true);", getElementByLinkText(locator));
     }
 }

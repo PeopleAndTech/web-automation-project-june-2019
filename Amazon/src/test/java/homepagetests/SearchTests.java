@@ -25,10 +25,14 @@ public class SearchTests extends HomePage {
         //resultPage.whatever();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAllDropDownMenu() {
         List<WebElement> elementList = getAllElementFromList();
         System.out.println(elementList.size());
         //homework -- print all the values of the dropdown (Not XPATH)
+        for (int i = 0; i < elementList.size(); i++) {
+            System.out.println(elementList.get(i).getText());
+        }
+
     }
 }
